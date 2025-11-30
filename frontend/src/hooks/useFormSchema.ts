@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { FormSchema } from '../types/form';
+import type { FormSchema } from '../types/form';
 import { apiClient } from '../api/client';
 
 /**
