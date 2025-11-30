@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import { env, isDev } from '../env';
+import { env, isDev } from './env';
+import formRoutes from './routes/formRoutes';
+import submissionRoutes from './routes/submissionRoutes';
+import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 
@@ -13,6 +16,10 @@ app.use(cors({
 
 app.use(express.json());
 
+// Routes
+app.use('/api', formRoutes);
+app.use('/api', submissionRoutes);
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
@@ -21,6 +28,9 @@ app.get('/api/health', (req, res) => {
     environment: env.APP_STAGE
   });
 });
+
+// Error handler middleware (must be last)
+app.use(errorHandler);
 
 app.listen(env.PORT, () => {
   console.log(`✓ Backend server running at http://localhost:${env.PORT}`);

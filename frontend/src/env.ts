@@ -1,4 +1,17 @@
+import { env as loadEnv } from 'custom-env'
 import { z } from 'zod'
+
+process.env.APP_STAGE = process.env.APP_STAGE || 'dev'
+
+const isProduction = process.env.APP_STAGE === 'production'
+const isDevelopment = process.env.APP_STAGE === 'dev'
+const isTesting = process.env.APP_STAGE === 'test'
+
+if (isDevelopment) {
+  loadEnv()
+} else if (isTesting) {
+  loadEnv('test')
+}
 
 /**
  * Frontend environment variables schema with Zod validation
@@ -7,9 +20,14 @@ import { z } from 'zod'
  * These are evaluated at build time and baked into the client bundle
  */
 const envSchema = z.object({
+  // Application stage
+  APP_STAGE: z
+    .enum(['dev', 'test', 'production'])
+    .default('dev'),
+
   // API Configuration
   VITE_API_BASE_URL: z
-    .url('VITE_API_BASE_URL must be a valid URL')
+    .string()
     .default('http://localhost:3000'),
 
   // API Paths
@@ -25,7 +43,7 @@ const envSchema = z.object({
   VITE_ENABLE_DEMO_MODE: z
     .enum(['true', 'false'])
     .transform((val) => val === 'true')
-    .default(() => false),
+    .default('false'),
 
   // UI Configuration
   VITE_TOAST_POSITION: z
@@ -36,23 +54,28 @@ const envSchema = z.object({
   VITE_LOG_LEVEL: z
     .enum(['debug', 'info', 'warn', 'error'])
     .default('info'),
-
-  // Optional: Application mode
-  VITE_APP_MODE: z
-    .enum(['development', 'production'])
-    .default('development'),
 })
 
 export type FrontendEnv = z.infer<typeof envSchema>
 
-let env: FrontendEnv = {} as FrontendEnv
+let env: FrontendEnv
 
 try {
-  env = envSchema.parse(import.meta.env)
+  // In frontend, use import.meta.env which is provided by Vite
+  env = envSchema.parse({
+    APP_STAGE: process.env.APP_STAGE || 'dev',
+    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+    VITE_API_FORM_SCHEMA_ENDPOINT: import.meta.env.VITE_API_FORM_SCHEMA_ENDPOINT,
+    VITE_API_SUBMISSIONS_ENDPOINT: import.meta.env.VITE_API_SUBMISSIONS_ENDPOINT,
+    VITE_ENABLE_DEMO_MODE: import.meta.env.VITE_ENABLE_DEMO_MODE,
+    VITE_TOAST_POSITION: import.meta.env.VITE_TOAST_POSITION,
+    VITE_LOG_LEVEL: import.meta.env.VITE_LOG_LEVEL,
+  })
 } catch (e) {
   if (e instanceof z.ZodError) {
     console.error('❌ Invalid frontend environment variables:')
-    
+    console.error(JSON.stringify(e.flatten().fieldErrors, null, 2))
+
     e.issues.forEach((err) => {
       const path = err.path.join('.')
       console.error(`  ${path}: ${err.message}`)
@@ -70,9 +93,9 @@ try {
 /**
  * Helper functions for environment checks
  */
-export const isDev = () => import.meta.env.MODE === 'development'
-export const isProd = () => import.meta.env.MODE === 'production'
-export const isDemoMode = () => env.VITE_ENABLE_DEMO_MODE
+export const isProd = () => env.APP_STAGE === 'production'
+export const isDev = () => env.APP_STAGE === 'dev'
+export const isTest = () => env.APP_STAGE === 'test'
 
 /**
  * API URL helpers
