@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CreateSubmissionPayload, CreateSubmissionResponse } from '../types/submission';
 import { apiClient } from '../api/client';
+import { showToast } from '../components/Toast';
 
 interface UseSubmitFormOptions {
   onSuccess?: (data: CreateSubmissionResponse) => void;
   onError?: (error: Error) => void;
+  showNotifications?: boolean;
 }
 
 /**
@@ -12,6 +14,7 @@ interface UseSubmitFormOptions {
  * Uses React Query mutation for state management and side effects
  */
 export const useSubmitForm = (options: UseSubmitFormOptions = {}) => {
+  const { showNotifications = true } = options;
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -19,9 +22,19 @@ export const useSubmitForm = (options: UseSubmitFormOptions = {}) => {
     onSuccess: (data) => {
       // Invalidate submissions query to refetch
       queryClient.invalidateQueries({ queryKey: ['submissions'] });
+      
+      if (showNotifications) {
+        showToast.success('Form submitted successfully!');
+      }
+      
       options.onSuccess?.(data);
     },
     onError: (error) => {
+      if (showNotifications) {
+        const message = error instanceof Error ? error.message : 'Failed to submit form';
+        showToast.error(message);
+      }
+      
       options.onError?.(error);
     },
   });

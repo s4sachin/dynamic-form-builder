@@ -45,7 +45,7 @@ const envSchema = z.object({
 
 export type FrontendEnv = z.infer<typeof envSchema>
 
-let env: FrontendEnv
+let env: FrontendEnv = {} as FrontendEnv
 
 try {
   // In frontend, use import.meta.env which is provided by Vite

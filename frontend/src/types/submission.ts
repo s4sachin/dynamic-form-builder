@@ -24,3 +24,8 @@ export interface CreateSubmissionPayload {
   formId: string;
   data: Record<string, unknown>;
 }
+
+export interface CreateSubmissionResponse {
+  id: string;
+  createdAt: string;
+}

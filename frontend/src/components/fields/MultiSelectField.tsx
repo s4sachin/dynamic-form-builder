@@ -1,4 +1,4 @@
-import type { FormField } from '../types/form';
+import type { FormField } from '../../types/form';
 import clsx from 'clsx';
 
 interface FieldComponentProps {
@@ -41,7 +41,7 @@ export const MultiSelectField: React.FC<FieldComponentProps> = ({
         <p className="text-sm text-gray-500">{field.description}</p>
       )}
       <div className={clsx('space-y-2', error && 'border border-red-500 p-3 rounded-md')}>
-        {field.options?.map((option) => (
+        {field.options?.map((option: { value: string; label: string }) => (
           <label
             key={option.value}
             className="flex items-center cursor-pointer"

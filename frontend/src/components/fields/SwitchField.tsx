@@ -1,4 +1,4 @@
-import { FormField } from '../types/form';
+import type { FormField } from '../../types/form';
 import clsx from 'clsx';
 
 interface FieldComponentProps {

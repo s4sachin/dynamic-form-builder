@@ -1,4 +1,4 @@
-import { FormField } from '../types/form';
+import type { FormField } from '../../types/form';
 import clsx from 'clsx';
 
 interface FieldComponentProps {
@@ -34,7 +34,7 @@ export const NumberField: React.FC<FieldComponentProps> = ({
         id={field.id}
         type="number"
         placeholder={field.placeholder}
-        value={value === undefined || value === null ? '' : value}
+        value={value === undefined || value === null ? '' : String(value)}
         onChange={(e) => onChange(e.target.value ? Number(e.target.value) : '')}
         onBlur={onBlur}
         disabled={disabled}

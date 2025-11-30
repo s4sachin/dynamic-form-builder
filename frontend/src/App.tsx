@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { FormPage, SubmissionsPage } from './pages';
+import { Toaster } from './components/Toast';
+import './App.css';
+
+const queryClient = new QueryClient();
+
+type PageType = 'form' | 'submissions';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState<PageType>('form');
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen bg-gray-100">
+        {/* Navigation */}
+        <nav className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16">
+              <div className="flex items-center">
+                <h1 className="text-2xl font-bold text-gray-900">Form Builder</h1>
+              </div>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setCurrentPage('form')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    currentPage === 'form'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  New Submission
+                </button>
+                <button
+                  onClick={() => setCurrentPage('submissions')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    currentPage === 'submissions'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  View Submissions
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        {/* Page Content */}
+        <main>
+          {currentPage === 'form' && <FormPage />}
+          {currentPage === 'submissions' && <SubmissionsPage />}
+        </main>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+      {/* Toast Notifications */}
+      <Toaster />
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;
