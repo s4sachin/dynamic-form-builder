@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "id": "sub_dca5054a-446e-47a9-818c-258c4bc3ff4c",
+    "formId": "employee-onboarding",
+    "data": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "department": "engineering",
+      "joinDate": "2025-12-15",
+      "experience": 5,
+      "skills": [
+        "javascript",
+        "typescript",
+        "react"
+      ],
+      "bio": "Developer",
+      "agreeToTerms": true
+    },
+    "createdAt": "2025-11-30T17:30:44.509Z",
+    "updatedAt": "2025-11-30T17:30:44.509Z"
+  }
+]

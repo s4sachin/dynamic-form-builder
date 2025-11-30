@@ -1,17 +1,4 @@
-import { env as loadEnv } from 'custom-env'
 import { z } from 'zod'
-
-process.env.APP_STAGE = process.env.APP_STAGE || 'dev'
-
-const isProduction = process.env.APP_STAGE === 'production'
-const isDevelopment = process.env.APP_STAGE === 'dev'
-const isTesting = process.env.APP_STAGE === 'test'
-
-if (isDevelopment) {
-  loadEnv()
-} else if (isTesting) {
-  loadEnv('test')
-}
 
 /**
  * Frontend environment variables schema with Zod validation
@@ -23,7 +10,7 @@ const envSchema = z.object({
   // Application stage
   APP_STAGE: z
     .enum(['dev', 'test', 'production'])
-    .default('dev'),
+    .catch('dev'),
 
   // API Configuration
   VITE_API_BASE_URL: z
@@ -43,7 +30,7 @@ const envSchema = z.object({
   VITE_ENABLE_DEMO_MODE: z
     .enum(['true', 'false'])
     .transform((val) => val === 'true')
-    .default('false'),
+    .catch(false),
 
   // UI Configuration
   VITE_TOAST_POSITION: z
@@ -63,7 +50,7 @@ let env: FrontendEnv
 try {
   // In frontend, use import.meta.env which is provided by Vite
   env = envSchema.parse({
-    APP_STAGE: process.env.APP_STAGE || 'dev',
+    APP_STAGE: import.meta.env.VITE_APP_STAGE || 'dev',
     VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
     VITE_API_FORM_SCHEMA_ENDPOINT: import.meta.env.VITE_API_FORM_SCHEMA_ENDPOINT,
     VITE_API_SUBMISSIONS_ENDPOINT: import.meta.env.VITE_API_SUBMISSIONS_ENDPOINT,
