@@ -1,6 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Submission, CreateSubmissionPayload } from '../types/submission';
 import { getSubmissions as getSubmissionsData, addSubmission } from '../data/submissions';
+import { randomUUID } from 'crypto';
 
 export const createSubmission = async (
   payload: CreateSubmissionPayload
@@ -8,7 +8,7 @@ export const createSubmission = async (
   try {
     const now = new Date().toISOString();
     const submission: Submission = {
-      id: `sub_${uuidv4()}`,
+      id: `sub_${randomUUID()}`,
       formId: payload.formId,
       data: payload.data,
       createdAt: now,
