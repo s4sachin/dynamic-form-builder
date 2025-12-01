@@ -28,7 +28,12 @@ export const FormPage: React.FC = () => {
     } as CreateSubmissionPayload,
     onSubmit: async ({ value }) => {
       try {
-        const response = await submitAsync(value);
+        // Build the submission payload with formId and data
+        const submission: CreateSubmissionPayload = {
+          formId: 'employee-onboarding',
+          data: value.data
+        };
+        const response = await submitAsync(submission);
         if (response) {
           // Reset form on success
           form.reset();
@@ -77,7 +82,9 @@ export const FormPage: React.FC = () => {
       const validationSchema = createFormSubmissionSchema(schema);
       validationSchema.parse(formData);
       return true;
-    } catch {
+    } catch (error) {
+      // Log validation errors for debugging
+      console.log('Form validation failed:', error);
       return false;
     }
   }, [schema, form.state.values.data]);
