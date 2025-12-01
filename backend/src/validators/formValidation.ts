@@ -86,6 +86,13 @@ export const createFieldValidationSchema = (field: FormField): z.ZodTypeAny => {
       schema = z.unknown();
   }
 
+  // For switch fields, if required, ensure it's true (checked)
+  if (field.type === 'switch' && field.required) {
+    return schema.refine((val) => val === true, {
+      message: `${field.label} must be accepted`,
+    });
+  }
+
   return field.required ? schema : schema.optional();
 };
 
