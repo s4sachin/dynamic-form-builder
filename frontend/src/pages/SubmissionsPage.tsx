@@ -5,10 +5,14 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 type SortOrder = 'asc' | 'desc';
 
+interface SubmissionsPageProps {
+  onNavigateToForm?: () => void;
+}
+
 /**
  * Submissions page component with pagination and sorting
  */
-export const SubmissionsPage: React.FC = () => {
+export const SubmissionsPage: React.FC<SubmissionsPageProps> = ({ onNavigateToForm }) => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -47,6 +51,10 @@ export const SubmissionsPage: React.FC = () => {
     setSortOrder((current) => (current === 'asc' ? 'desc' : 'asc'));
   };
 
+  const handleCreateNew = () => {
+    onNavigateToForm?.();
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
@@ -68,33 +76,39 @@ export const SubmissionsPage: React.FC = () => {
           )}
 
           {/* Controls */}
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex gap-2 items-center">
-              <label htmlFor="limit" className="text-sm font-medium text-gray-700">
-                Items per page:
-              </label>
-              <select
-                id="limit"
-                value={limit}
-                onChange={handleLimitChange}
-                className="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm"
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
-            </div>
+          {!isLoading && (
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex gap-2 items-center">
+                <label htmlFor="limit" className="text-sm font-medium text-gray-700">
+                  Items per page:
+                </label>
+                <select
+                  id="limit"
+                  value={limit}
+                  onChange={handleLimitChange}
+                  className="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm"
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
 
-            <button
-              onClick={handleSortChange}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
-            >
-              Sort: {sortOrder === 'asc' ? 'Oldest' : 'Newest'} First
-            </button>
-          </div>
+              <button
+                onClick={handleSortChange}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+              >
+                Sort: {sortOrder === 'asc' ? 'Oldest' : 'Newest'} First
+              </button>
+            </div>
+          )}
 
           {/* Table */}
-          <SubmissionsTable submissions={submissions || []} isLoading={isLoading} />
+          <SubmissionsTable 
+            submissions={submissions || []} 
+            isLoading={isLoading}
+            onCreateNew={handleCreateNew}
+          />
 
           {/* Pagination Info and Controls */}
           {pagination && !isLoading && submissions && submissions.length > 0 && (
