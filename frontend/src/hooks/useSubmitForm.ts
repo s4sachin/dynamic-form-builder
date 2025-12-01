@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CreateSubmissionPayload, CreateSubmissionResponse } from '../types/submission';
+import type { CreateSubmissionPayload, CreateSubmissionResponse } from '../types/submission';
 import { apiClient } from '../api/client';
 import { showToast } from '../components/Toast';
 
@@ -31,8 +31,18 @@ export const useSubmitForm = (options: UseSubmitFormOptions = {}) => {
     },
     onError: (error) => {
       if (showNotifications) {
-        const message = error instanceof Error ? error.message : 'Failed to submit form';
-        showToast.error(message);
+        // Check if it's a validation error with field-level errors
+        const validationErrors = (error as Error & { validationErrors?: Record<string, string[]> })?.validationErrors;
+        
+        if (validationErrors && Object.keys(validationErrors).length > 0) {
+          // Show first field error with field name
+          const firstField = Object.keys(validationErrors)[0];
+          const firstError = validationErrors[firstField][0];
+          showToast.error(`${firstField}: ${firstError}`);
+        } else {
+          const message = error instanceof Error ? error.message : 'Failed to submit form';
+          showToast.error(message);
+        }
       }
       
       options.onError?.(error);

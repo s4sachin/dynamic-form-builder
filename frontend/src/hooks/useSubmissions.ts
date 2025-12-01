@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { SubmissionsQueryResponse } from '../types/submission';
+import type { SubmissionsQueryResponse } from '../types/submission';
 import { apiClient } from '../api/client';
 
 interface UseSubmissionsOptions {
