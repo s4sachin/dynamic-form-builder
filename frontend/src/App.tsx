@@ -51,7 +51,7 @@ function App() {
 
         {/* Page Content */}
         <main>
-          {currentPage === 'form' && <FormPage />}
+          {currentPage === 'form' && <FormPage onNavigateToSubmissions={() => setCurrentPage('submissions')} />}
           {currentPage === 'submissions' && (
             <SubmissionsPage onNavigateToForm={() => setCurrentPage('form')} />
           )}
