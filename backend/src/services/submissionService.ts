@@ -1,33 +1,11 @@
-import fs from 'fs/promises';
-import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { Submission, CreateSubmissionPayload } from '../types/submission';
-
-// Use __dirname to get the correct path in serverless
-const SUBMISSIONS_PATH = path.join(__dirname, '../../data', 'submissions.json');
-
-const readSubmissions = async (): Promise<Submission[]> => {
-  try {
-    const fileContent = await fs.readFile(SUBMISSIONS_PATH, 'utf-8');
-    return JSON.parse(fileContent) as Submission[];
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return [];
-    }
-    throw error;
-  }
-};
-
-const writeSubmissions = async (submissions: Submission[]): Promise<void> => {
-  await fs.writeFile(SUBMISSIONS_PATH, JSON.stringify(submissions, null, 2), 'utf-8');
-};
+import { getSubmissions as getSubmissionsData, addSubmission } from '../data/submissions';
 
 export const createSubmission = async (
   payload: CreateSubmissionPayload
 ): Promise<{ id: string; createdAt: string }> => {
   try {
-    const submissions = await readSubmissions();
-
     const now = new Date().toISOString();
     const submission: Submission = {
       id: `sub_${uuidv4()}`,
@@ -37,8 +15,7 @@ export const createSubmission = async (
       updatedAt: now
     };
 
-    submissions.push(submission);
-    await writeSubmissions(submissions);
+    addSubmission(submission);
 
     return {
       id: submission.id,
@@ -56,7 +33,7 @@ export const getSubmissions = async (
   sortOrder: 'asc' | 'desc' = 'desc'
 ): Promise<{ submissions: Submission[]; total: number }> => {
   try {
-    const submissions = await readSubmissions();
+    const submissions = getSubmissionsData();
 
     // Sort by createdAt
     const sorted = [...submissions].sort((a, b) => {

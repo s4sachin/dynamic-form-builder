@@ -1,0 +1,113 @@
+import { FormSchema } from '../types/form';
+
+export const formSchema: FormSchema = {
+  id: "employee-onboarding",
+  title: "Employee Onboarding Form",
+  description: "Please fill out all required information for your employee profile",
+  fields: [
+    {
+      id: "firstName",
+      name: "firstName",
+      type: "text",
+      label: "First Name",
+      placeholder: "Enter your first name",
+      required: true,
+      validation: {
+        minLength: 2,
+        maxLength: 50
+      }
+    },
+    {
+      id: "lastName",
+      name: "lastName",
+      type: "text",
+      label: "Last Name",
+      placeholder: "Enter your last name",
+      required: true,
+      validation: {
+        minLength: 2,
+        maxLength: 50
+      }
+    },
+    {
+      id: "email",
+      name: "email",
+      type: "text",
+      label: "Email Address",
+      placeholder: "you@example.com",
+      required: true,
+      validation: {
+        regex: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      id: "department",
+      name: "department",
+      type: "select",
+      label: "Department",
+      required: true,
+      options: [
+        { label: "Engineering", value: "engineering" },
+        { label: "Product", value: "product" },
+        { label: "Design", value: "design" }
+      ]
+    },
+    {
+      id: "joinDate",
+      name: "joinDate",
+      type: "date",
+      label: "Join Date",
+      required: true,
+      validation: {
+        minDate: "2025-11-30"
+      }
+    },
+    {
+      id: "experience",
+      name: "experience",
+      type: "number",
+      label: "Years of Experience",
+      placeholder: "0",
+      required: true,
+      validation: {
+        min: 0,
+        max: 70
+      }
+    },
+    {
+      id: "skills",
+      name: "skills",
+      type: "multi-select",
+      label: "Technical Skills",
+      required: true,
+      options: [
+        { label: "JavaScript", value: "javascript" },
+        { label: "TypeScript", value: "typescript" },
+        { label: "React", value: "react" },
+        { label: "Node.js", value: "nodejs" }
+      ],
+      validation: {
+        minSelected: 1,
+        maxSelected: 4
+      }
+    },
+    {
+      id: "bio",
+      name: "bio",
+      type: "textarea",
+      label: "Professional Bio",
+      placeholder: "Tell us about yourself...",
+      required: false,
+      validation: {
+        maxLength: 500
+      }
+    },
+    {
+      id: "agreeToTerms",
+      name: "agreeToTerms",
+      type: "switch",
+      label: "I agree to the company policies",
+      required: true
+    }
+  ]
+};
