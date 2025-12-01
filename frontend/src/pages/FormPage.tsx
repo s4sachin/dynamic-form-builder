@@ -1,21 +1,30 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { FormRenderer } from '../components/FormRenderer';
 import { useFormSchema, useSubmitForm } from '../hooks';
+import { Skeleton } from '../components/Skeleton';
+import { FormEmptyState } from '../components/EmptyState';
 import type { CreateSubmissionPayload } from '../types/submission';
+import { createFormSubmissionSchema } from '../schemas/validation';
 
 /**
  * Form page component that renders dynamic form using TanStack Form
  */
 export const FormPage: React.FC = () => {
-  const { schema, isLoading: schemaLoading, isError: schemaError } = useFormSchema();
+  const { schema, isLoading: schemaLoading, isError: schemaError, retry } = useFormSchema();
   const { submitAsync, isPending: submitting, validationErrors } = useSubmitForm();
 
   // Initialize form with TanStack Form
   const form = useForm({
     defaultValues: {
       formId: 'employee-onboarding',
-      data: {},
+      data: schema?.fields.reduce((acc, field) => {
+        // Initialize switch fields with false
+        if (field.type === 'switch') {
+          acc[field.name] = false;
+        }
+        return acc;
+      }, {} as Record<string, any>) || {},
     } as CreateSubmissionPayload,
     onSubmit: async ({ value }) => {
       try {
@@ -35,14 +44,53 @@ export const FormPage: React.FC = () => {
     form.validate('change');
   }, [form]);
 
+  // Check if form is valid - all required fields filled and validated
+  const isFormValid = useMemo(() => {
+    if (!schema) return false;
+    
+    const formData = form.state.values.data as Record<string, any>;
+    
+    // Check if all required fields are present and valid
+    for (const field of schema.fields) {
+      if (field.required) {
+        const value = formData[field.name];
+        
+        // Check if value exists and is not empty
+        if (value === undefined || value === null || value === '') {
+          return false;
+        }
+        
+        // For switch fields, must be true
+        if (field.type === 'switch' && value !== true) {
+          return false;
+        }
+        
+        // For multi-select, must have at least one item
+        if (field.type === 'multi-select' && (!Array.isArray(value) || value.length === 0)) {
+          return false;
+        }
+      }
+    }
+    
+    // Validate with Zod schema
+    try {
+      const validationSchema = createFormSubmissionSchema(schema);
+      validationSchema.parse(formData);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [schema, form.state.values.data]);
+
   if (schemaLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-center">
-          <div className="mb-4">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+          <div className="mb-8 space-y-3">
+            <Skeleton variant="text" className="h-8 w-3/4" />
+            <Skeleton variant="text" className="h-4 w-full" />
           </div>
-          <p className="text-gray-600">Loading form...</p>
+          <Skeleton variant="form-field" count={6} />
         </div>
       </div>
     );
@@ -50,15 +98,9 @@ export const FormPage: React.FC = () => {
 
   if (schemaError || !schema) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Failed to load form schema</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Retry
-          </button>
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+          <FormEmptyState onRetry={() => retry()} />
         </div>
       </div>
     );
@@ -108,8 +150,8 @@ export const FormPage: React.FC = () => {
           <div className="flex gap-3 pt-4">
             <button
               type="submit"
-              disabled={submitting}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+              disabled={submitting || !isFormValid}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium transition-colors"
             >
               {submitting ? 'Submitting...' : 'Submit'}
             </button>
