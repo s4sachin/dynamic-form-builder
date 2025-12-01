@@ -22,8 +22,8 @@ const corsOptions = {
       return;
     }
 
-    // In production, only allow configured origin
-    if (origin === env.CORS_ORIGIN) {
+    // In production, allow all Vercel preview and production URLs
+    if (origin.includes('vercel.app') || origin === env.CORS_ORIGIN) {
       callback(null, true);
       return;
     }
