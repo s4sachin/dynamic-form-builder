@@ -1,65 +1,19 @@
-import express from 'express';
-import cors from 'cors';
+import { app } from './app';
 import { env, isDev } from './env';
-import formRoutes from './routes/formRoutes';
-import submissionRoutes from './routes/submissionRoutes';
-import { errorHandler } from './middleware/errorHandler';
 
-const app = express();
-
-// CORS configuration - allow both common dev ports
-const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) {
-      callback(null, true);
-      return;
+// Only start server if not in serverless environment
+if (process.env.VERCEL !== '1') {
+  app.listen(env.PORT, () => {
+    console.log(`✓ Backend server running at http://localhost:${env.PORT}`);
+    console.log(`✓ Environment: ${env.APP_STAGE}`);
+    console.log(`✓ CORS enabled for ${env.CORS_ORIGIN}`);
+    if (isDev()) {
+      console.log(`✓ Development mode - check .env for configuration`);
     }
-
-    // In development, allow localhost on any port
-    if (isDev() && origin.includes('localhost')) {
-      callback(null, true);
-      return;
-    }
-
-    // In production, only allow configured origin
-    if (origin === env.CORS_ORIGIN) {
-      callback(null, true);
-      return;
-    }
-
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type']
-};
-
-app.use(cors(corsOptions));
-
-app.use(express.json());
-
-// Routes
-app.use('/api', formRoutes);
-app.use('/api', submissionRoutes);
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    message: 'Form Builder API is running',
-    environment: env.APP_STAGE
   });
-});
+}
 
-// Error handler middleware (must be last)
-app.use(errorHandler);
-
-app.listen(env.PORT, () => {
-  console.log(`✓ Backend server running at http://localhost:${env.PORT}`);
-  console.log(`✓ Environment: ${env.APP_STAGE}`);
-  console.log(`✓ CORS enabled for ${env.CORS_ORIGIN}`);
-  if (isDev()) {
-    console.log(`✓ Development mode - check .env for configuration`);
-  }
-});
+// Export for Vercel
+export function createServer() {
+  return app;
+}
