@@ -3,7 +3,8 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { Submission, CreateSubmissionPayload } from '../types/submission';
 
-const SUBMISSIONS_PATH = path.join(process.cwd(), 'data', 'submissions.json');
+// Use __dirname to get the correct path in serverless
+const SUBMISSIONS_PATH = path.join(__dirname, '../../data', 'submissions.json');
 
 const readSubmissions = async (): Promise<Submission[]> => {
   try {

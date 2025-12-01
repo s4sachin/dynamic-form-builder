@@ -4,7 +4,8 @@ import { FormSchema } from '../types/form';
 
 let cachedFormSchema: FormSchema | null = null;
 
-const SCHEMA_PATH = path.join(process.cwd(), 'data', 'formSchema.json');
+// Use __dirname to get the correct path in serverless
+const SCHEMA_PATH = path.join(__dirname, '../../data', 'formSchema.json');
 
 export const getFormSchema = async (): Promise<FormSchema> => {
   if (cachedFormSchema) {
