@@ -1,6 +1,6 @@
 import React from 'react';
 import toast, { Toaster as HotToaster } from 'react-hot-toast';
-import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, Info, X } from 'lucide-react';
 
 /**
  * Toast wrapper component using react-hot-toast
@@ -37,7 +37,7 @@ export const showToast = {
           t.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
       >
-        <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+        <CheckCircle className="w-5 h-5 flex-shrink-0" />
         <p className="flex-1">{message}</p>
         <button onClick={() => toast.dismiss(t.id)}>
           <X className="w-4 h-4" />

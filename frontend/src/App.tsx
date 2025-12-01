@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FormPage } from './pages/FormPage';
 import { SubmissionsPage } from './pages/SubmissionsPage';
+import { Toaster } from './components/Toast';
 import './App.css';
 
 const queryClient = new QueryClient();
@@ -13,6 +14,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster />
       <div className="min-h-screen bg-gray-100">
         {/* Navigation */}
         <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -50,7 +52,9 @@ function App() {
         {/* Page Content */}
         <main>
           {currentPage === 'form' && <FormPage />}
-          {currentPage === 'submissions' && <SubmissionsPage />}
+          {currentPage === 'submissions' && (
+            <SubmissionsPage onNavigateToForm={() => setCurrentPage('form')} />
+          )}
         </main>
       </div>
     </QueryClientProvider>
